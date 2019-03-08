@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Nathan Sheffield" />
+
+<meta name="date" content="2019-03-06" />
+
+<title>An introduction to loadr</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' || rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20800px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%2020px%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%200%3B%0Apadding%3A%204px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%3Anot%28%5Bclass%5D%29%20%7B%0Amargin%3A%20auto%3B%0Amin%2Dwidth%3A%2040%25%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%5Bsummary%3D%22R%20argblock%22%5D%20%7B%0Awidth%3A%20100%25%3B%0Aborder%3A%20none%3B%0A%7D%0Atable%3Anot%28%5Bclass%5D%29%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%3Anot%28%5Bclass%5D%29%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%3Anot%28%5Bclass%5D%29%2C%20table%3Anot%28%5Bclass%5D%29%20th%2C%20table%3Anot%28%5Bclass%5D%29%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%3Anot%28%5Bclass%5D%29%20tr%2Eodd%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%2013px%3B%0Apadding%2Dbottom%3A%201px%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f5f5f5%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0A%7D%0Apre%20%7B%0Aoverflow%2Dx%3A%20auto%3B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200%2010px%200%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20white%3B%0Aborder%3A%20%23f5f5f5%201px%20solid%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20code%20%7B%0Acolor%3A%20%23444%3B%0Abackground%2Dcolor%3A%20white%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20monospace%3B%0Afont%2Dsize%3A%2090%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%204px%3B%0Acolor%3A%20%23d14%3B%0Aborder%3A%201px%20solid%20%23e1e1e8%3B%0Awhite%2Dspace%3A%20inherit%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Atable%20%3E%20caption%2C%20div%2Efigure%20p%2Ecaption%20%7B%0Afont%2Dstyle%3A%20italic%3B%0A%7D%0Atable%20%3E%20caption%20span%2C%20div%2Efigure%20p%2Ecaption%20span%20%7B%0Afont%2Dstyle%3A%20normal%3B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%200%2010px%3B%0A%7D%0Atable%3Anot%28%5Bclass%5D%29%20%7B%0Amargin%3A%20auto%20auto%2010px%20auto%3B%0A%7D%0Aimg%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0Amax%2Dwidth%3A%20100%25%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f5f5f5%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f5f5f5%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f5f5f5%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Adiv%2Er%2Dhelp%2Dpage%20%7B%0Abackground%2Dcolor%3A%20%23f9f9f9%3B%0Aborder%2Dbottom%3A%20%23ddd%201px%20solid%3B%0Amargin%2Dbottom%3A%2010px%3B%0Apadding%3A%2010px%3B%0A%7D%0Adiv%2Er%2Dhelp%2Dpage%3Ahover%20%7B%0Abackground%2Dcolor%3A%20%23f4f4f4%3B%0A%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">An introduction to loadr</h1>
+<h4 class="author"><em>Nathan Sheffield</em></h4>
+<h4 class="date"><em>2019-03-06</em></h4>
+
+
+
+<div id="an-introduction-to-loadr" class="section level1">
+<h1>An introduction to loadr</h1>
+<div id="motivation" class="section level2">
+<h2>Motivation</h2>
+<p>In a large, complex R analysis, I often find myself with dozens of resource data objects that I use as a reference for my computation. These are usually some kind of large dataset that I read into R and then use as reference data. As an example, I have a file with a big matrix with values from chromatin accessibility for 120 different cell-types across about a million different genomic regions (so, a 120-by-1 million matrix). I read this into my R sessions occasionally when I want to see, for example, how a new set of regions looks across that data resource. I’m not really changing the resource data, I’m just using it as a reference. I may load dozens of these kinds of resources into a single R session, and I want to re-use them across multiple scripts and multiple sessions, so I find myself reading them in a lot. I also start writing functions around these kinds of resources.</p>
+<p>Given this complexity, sometimes it gets confusing for me to keep track of all the variables I keep in my primary R workspace, so I started to investigate how I could use R <code>environments</code> to declutter things. I discovered that I could load these kinds of “shared data reference” sets into a separate R environment, let’s call it <code>SV</code> for “Shared Variables” – and then they don’t clutter my primary R workspace and I can still access them with <code>SV$variable</code>. This cleaned things up a bit for me and so I’ve developed a series of functions that make it really easy to interact with reference data like this kept in its own separate environment. That’s what <code>loadr</code> is.</p>
+<p>Before we start loading data, it’s important to tell <code>loadr</code> the name of the environment where I want to store these reference objects. <code>loadr</code> uses a global variable (<code>LOADRENV</code>) to keep track of this environment name and provides a getter/setter function (<code>loadrEnv()</code>) to change or retrieve this. By default, we’ll use an environment named <code>SV</code>. To make it explicit, just do this:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(loadr)
+<span class="kw">loadrEnv</span>(<span class="st">&quot;SV&quot;</span>)</code></pre></div>
+<p>(This is optional, <code>SV</code> is the default environment name. You can also use this to name your shared variable environment something else). Now, let’s generate some random data and load it into that environment with <code>loadr</code> functions:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">eload</span>(<span class="kw">list</span>(<span class="dt">sampleData =</span> <span class="kw">rnorm</span>(<span class="fl">1e7</span>, <span class="dv">0</span>,<span class="dv">1</span>)))</code></pre></div>
+<pre><code>## Newly Loaded: sampleData</code></pre>
+<p>Notice that the <code>eload</code> function takes a <em>named list</em>. The name of item in the list becomes the variable name of the object. If you now look at the R objects in your workspace, you won’t see an object named <code>sampleData</code>, but you will see one named <code>SV</code>, which is a object of type <code>environment</code>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ls</span>()</code></pre></div>
+<pre><code>## [1] &quot;SV&quot;</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">class</span>(SV)</code></pre></div>
+<pre><code>## [1] &quot;environment&quot;</code></pre>
+<p>The <code>sampleData</code> object has been put in the <code>SV</code> environment:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ls</span>(<span class="dt">envir=</span>SV)</code></pre></div>
+<pre><code>## [1] &quot;sampleData&quot;</code></pre>
+<p>We can get that <code>sampleData</code> object back like this:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(SV<span class="op">$</span>sampleData)</code></pre></div>
+<pre><code>## [1]  0.3522358 -1.2131437  0.1014971 -0.6822103  0.5806476 -0.1680026</code></pre>
+<p>If you have multiple objects to load at the same time, no problem:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">eload</span>(<span class="kw">list</span>(<span class="dt">x=</span><span class="dv">5</span>, <span class="dt">y=</span><span class="dv">7</span>))</code></pre></div>
+<pre><code>## Newly Loaded: x, y</code></pre>
+<pre><code>## Unchanged: sampleData</code></pre>
+<p>The function has notified us that the <code>x</code> and <code>y</code> objects are newly loaded in to the shared variable environment. What happens if we try to load objects with the same name? They will get updated:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">eload</span>(<span class="kw">list</span>(<span class="dt">x=</span><span class="dv">526</span>, <span class="dt">y=</span><span class="dv">234</span>))</code></pre></div>
+<pre><code>## Updated: x, y</code></pre>
+<pre><code>## Unchanged: sampleData</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SV<span class="op">$</span>x</code></pre></div>
+<pre><code>## [1] 526</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SV<span class="op">$</span>y</code></pre></div>
+<pre><code>## [1] 234</code></pre>
+<p>In practice, I write functions that load up data and then I want to load up the results of these functions. Let’s define a function that will read data from a (potentially large) file:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">loadMyData =<span class="st"> </span><span class="cf">function</span>() {
+    filePath =<span class="st"> </span><span class="kw">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;mydata.txt&quot;</span>, <span class="dt">package=</span><span class="st">&quot;loadr&quot;</span>)
+    myData =<span class="st"> </span><span class="kw">read.table</span>(filePath)
+    <span class="kw">return</span>(myData)
+}</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">eload</span>(<span class="kw">list</span>(<span class="dt">myvector=</span><span class="kw">loadMyData</span>()))</code></pre></div>
+<pre><code>## Newly Loaded: myvector</code></pre>
+<pre><code>## Unchanged: sampleData, x, y</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SV<span class="op">$</span>myvector</code></pre></div>
+<pre><code>##     V1
+## 1    2
+## 2    3
+## 3    5
+## 4    2
+## 5    3
+## 6    3
+## 7    4
+## 8   62
+## 9    2
+## 10   3
+## 11   4
+## 12   6
+## 13   3
+## 14   4
+## 15 564</code></pre>
+</div>
+<div id="loading-local-variables-or-variably-named-variables-with-vload" class="section level2">
+<h2>Loading local variables or variably named variables with <code>vload</code></h2>
+<p>What if I just want to load a local R variable, <code>myLocalVar</code>, under its current name? <code>eload(myLocalVar)</code> doesn’t work because there is no named list of variables, so that will fail. It’s possibe but a bit cumbersome to use <code>eload(list(myLocalVar=myLocalVar))</code>.</p>
+<p>Here’s where an alias called <code>vload()</code> can help:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myLocalVar =<span class="st"> </span><span class="dv">15</span>
+<span class="kw">vload</span>(myLocalVar)</code></pre></div>
+<pre><code>## Newly Loaded: myLocalVar</code></pre>
+<pre><code>## Unchanged: myvector, sampleData, x, y</code></pre>
+<p><code>vload</code> can accept any number of variables:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myLocalVar2 =<span class="st"> </span><span class="dv">22</span>
+myLocalVar3 =<span class="st"> </span><span class="dv">31</span>
+<span class="kw">vload</span>(myLocalVar2, myLocalVar3)</code></pre></div>
+<pre><code>## Newly Loaded: myLocalVar2, myLocalVar3</code></pre>
+<pre><code>## Unchanged: myLocalVar, myvector, sampleData, x, y</code></pre>
+<p>You can also use <code>vload</code> with a special named argument <code>varNames</code> to assign the objects to variably named variables. For example:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myLocalVar4 =<span class="st"> </span><span class="dv">15</span>
+<span class="kw">vload</span>(myLocalVar2, myLocalVar3, <span class="dt">varNames=</span><span class="kw">c</span>(<span class="st">&quot;var1&quot;</span>, <span class="st">&quot;var2&quot;</span>))</code></pre></div>
+<pre><code>## Newly Loaded: var1, var2</code></pre>
+<pre><code>## Unchanged: myLocalVar, myLocalVar2, myLocalVar3, myvector, sampleData, x, y</code></pre>
+<p>To see how this could be useful, let’s imagine our data loading function depends on some variable which is script dependent, like the reference genome assembly:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">loadMyData =<span class="st"> </span><span class="cf">function</span>(genome) {
+    filePath =<span class="st"> </span><span class="kw">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;mydata.txt&quot;</span>, <span class="dt">package=</span><span class="st">&quot;loadr&quot;</span>)
+    myData =<span class="st"> </span><span class="kw">read.table</span>(filePath)
+    <span class="kw">return</span>(myData)
+}</code></pre></div>
+<p>Let’s load up some data from this function for a few different genomes at the same time:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">genome=<span class="st">&quot;hg19&quot;</span>
+<span class="kw">vload</span>(<span class="kw">loadMyData</span>(genome), <span class="dt">varNames=</span><span class="kw">paste0</span>(<span class="st">&quot;myvector_&quot;</span>, genome))</code></pre></div>
+<pre><code>## Newly Loaded: myvector_hg19</code></pre>
+<pre><code>## Unchanged: myLocalVar, myLocalVar2, myLocalVar3, myvector, sampleData, var1, var2, x, y</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">genome=<span class="st">&quot;mm10&quot;</span>
+<span class="kw">vload</span>(<span class="kw">loadMyData</span>(genome), <span class="dt">varNames=</span><span class="kw">paste0</span>(<span class="st">&quot;myvector_&quot;</span>, genome))</code></pre></div>
+<pre><code>## Newly Loaded: myvector_mm10</code></pre>
+<pre><code>## Unchanged: myLocalVar, myLocalVar2, myLocalVar3, myvector, myvector_hg19, sampleData, var1, var2, x, y</code></pre>
+<p>An easier way to accomplish the same thing that will be to just <code>lapply</code> across our list of genomes:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">genomes=<span class="kw">c</span>(<span class="st">&quot;hg19&quot;</span>, <span class="st">&quot;mm10&quot;</span>)
+res =<span class="st"> </span><span class="kw">lapply</span>(genomes, <span class="cf">function</span>(genome) { 
+    <span class="kw">vload</span>(<span class="kw">loadMyData</span>(genome), <span class="dt">varNames=</span><span class="kw">paste0</span>(<span class="st">&quot;myvector_&quot;</span>, genome))
+    })</code></pre></div>
+<pre><code>## Updated: myvector_hg19</code></pre>
+<pre><code>## Unchanged: myLocalVar, myLocalVar2, myLocalVar3, myvector, myvector_mm10, sampleData, var1, var2, x, y</code></pre>
+<pre><code>## Updated: myvector_mm10</code></pre>
+<pre><code>## Unchanged: myLocalVar, myLocalVar2, myLocalVar3, myvector, myvector_hg19, sampleData, var1, var2, x, y</code></pre>
+</div>
+</div>
+
+<script type="text/javascript">
+window.onload = function() {
+  var i, fig = 1, caps = document.getElementsByClassName('caption');
+  for (i = 0; i < caps.length; i++) {
+    var cap = caps[i];
+    if (cap.parentElement.className !== 'figure' || cap.nodeName !== 'P')
+      continue;
+    cap.innerHTML = '<span>Figure ' + fig + ':</span> ' + cap.innerHTML;
+    fig++;
+  }
+  fig = 1;
+  caps = document.getElementsByTagName('caption');
+  for (i = 0; i < caps.length; i++) {
+    var cap = caps[i];
+    if (cap.parentElement.nodeName !== 'TABLE') continue;
+    cap.innerHTML = '<span>Table ' + fig + ':</span> ' + cap.innerHTML;
+    fig++;
+  }
+}
+</script>
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
